@@ -1,7 +1,10 @@
 public class Frame { 
-    byte[] data; 
-    Frame(byte[] d)
-    { 
+    private byte[] data; 
+    Frame(byte[] d) { 
         this.data=d; 
     } 
+
+    public byte[] getBytes() {
+        return data;
+    }
 }
