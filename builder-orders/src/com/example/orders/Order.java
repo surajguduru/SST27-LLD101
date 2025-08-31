@@ -7,31 +7,86 @@ import java.util.List;
  * Telescoping constructors + setters. Allows invalid states.
  */
 public class Order {
-    private String id;
-    private String customerEmail;
+    private final String id;
+    private final String customerEmail;
     private final List<OrderLine> lines = new ArrayList<>();
-    private Integer discountPercent; // 0..100 expected, but not enforced
-    private boolean expedited;
-    private String notes;
+    private final Integer discountPercent; // 0..100 expected, but not enforced
+    private final boolean expedited;
+    private final String notes;
 
-    public Order(String id, String customerEmail) {
-        this.id = id;
-        this.customerEmail = customerEmail;
+
+    public static class OrderBuilder {
+        private String id;
+        private String customerEmail;
+        private List<OrderLine> lines = new ArrayList<>();
+        private Integer discountPercent;
+        private boolean expedited;
+        private String notes;
+
+        public OrderBuilder setId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public OrderBuilder setCustomerEmail(String customerEmail) {
+            this.customerEmail = customerEmail;
+            return this;
+        }
+
+        public OrderBuilder addLine(OrderLine line) {
+            this.lines.add(line);
+            return this;
+        }
+
+        public OrderBuilder setDiscountPercent(Integer discountPercent) {
+            this.discountPercent = discountPercent;
+            return this;
+        }
+
+        public OrderBuilder setExpedited(boolean expedited) {
+            this.expedited = expedited;
+            return this;
+        }
+
+        public OrderBuilder setNotes(String notes) {
+            this.notes = notes;
+            return this;
+        }
+
+        // Getters
+        public String getId() { return id; }
+        public String getCustomerEmail() { return customerEmail; }
+        public List<OrderLine> getLines() { return lines; }
+        public Integer getDiscountPercent() { return discountPercent; }
+        public boolean isExpedited() { return expedited; }
+        public String getNotes() { return notes; }
+
+        public Order build() {
+            // Validations
+            Validation.isNullOrEmpty(id);
+            Validation.isNullOrEmpty(customerEmail);
+            Validation.hasAtLeastOneLineItem(this);
+            Validation.isValidEmail(customerEmail);
+            Validation.isValidDiscount(discountPercent);
+
+            return new Order(this);
+        }
+
+        public OrderBuilder() {}
     }
 
-    public Order(String id, String customerEmail, Integer discountPercent) {
-        this(id, customerEmail);
-        this.discountPercent = discountPercent;
+    private Order(OrderBuilder builder) {
+        this.id = builder.id;
+        this.customerEmail = builder.customerEmail;
+        this.lines.addAll(builder.lines); // defensive copy
+        this.discountPercent = builder.discountPercent;
+        this.expedited = builder.expedited;
+        this.notes = builder.notes;
     }
-
-    public void addLine(OrderLine line) { lines.add(line); }
-    public void setDiscountPercent(Integer discountPercent) { this.discountPercent = discountPercent; }
-    public void setExpedited(boolean expedited) { this.expedited = expedited; }
-    public void setNotes(String notes) { this.notes = notes; }
 
     public String getId() { return id; }
     public String getCustomerEmail() { return customerEmail; }
-    public List<OrderLine> getLines() { return lines; } // leaks internal list
+    public List<OrderLine> getLines() { return new ArrayList<>(lines); }
     public Integer getDiscountPercent() { return discountPercent; }
     public boolean isExpedited() { return expedited; }
     public String getNotes() { return notes; }
