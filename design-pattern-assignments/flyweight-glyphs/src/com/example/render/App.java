@@ -1,4 +1,3 @@
-package com.example.render;
 public class App {
     public static void main(String[] args) {
         Renderer r = new Renderer();

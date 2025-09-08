@@ -1,10 +1,11 @@
-package com.example.render;
+import org.w3c.dom.Text;
 
 public class Renderer {
     public int render(String text) {
         int cost = 0;
         for (char c : text.toCharArray()) {
-            Glyph g = new Glyph(c, "Inter", 14, (c % 7 == 0)); // TODO: refactor with TextStyle flyweights
+            TextStyle style = TextStyleFactory.getTextStyle("Inter", 14, true);
+            Glyph g = new Glyph(c, style);
             cost += g.drawCost();
         }
         return cost;
